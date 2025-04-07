@@ -188,9 +188,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.17"
+version = "1.2.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fcb57c740ae1daf453ae85f16e37396f672b039e00d9d866e07ddb24e328e3a"
+checksum = "525046617d8376e3db1deffb079e91cef90a89fc3ca5c185bbf8c9ecdd15cd5c"
 dependencies = [
  "shlex",
 ]
@@ -388,9 +388,9 @@ checksum = "c7f84e12ccf0a7ddc17a6c41c93326024c42920d7ee630d04950e6926645c0fe"
 
 [[package]]
 name = "errno"
-version = "0.3.10"
+version = "0.3.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "33d852cb9b869c2a9b3df2f71a3074817f01e1844f839a144f5fcef059a4eb5d"
+checksum = "976dd42dc7e85965fe702eb8164f21f450704bdde31faefd6471dba214cb594e"
 dependencies = [
  "libc",
  "windows-sys 0.59.0",
@@ -564,6 +564,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f31827a206f56af32e590ba56d5d2d085f558508192593743f16b2306495269f"
 dependencies = [
  "cc",
+]
+
+[[package]]
+name = "im"
+version = "15.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d0acd33ff0285af998aaf9b57342af478078f53492322fafc47450e09397e0e9"
+dependencies = [
+ "bitmaps",
+ "rand_core 0.6.4",
+ "rand_xoshiro",
+ "sized-chunks",
+ "typenum",
+ "version_check",
 ]
 
 [[package]]
@@ -938,9 +952,9 @@ dependencies = [
 
 [[package]]
 name = "redox_syscall"
-version = "0.5.10"
+version = "0.5.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b8c0c260b63a8219631167be35e6a988e9554dbd323f8bd08439c8ed1302bd1"
+checksum = "d2f103c6d277498fbceb16e84d317e2a400f160f46904d5f5410848c829511a3"
 dependencies = [
  "bitflags",
 ]
@@ -1070,9 +1084,9 @@ dependencies = [
 
 [[package]]
 name = "smallvec"
-version = "1.14.0"
+version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fcf8323ef1faaee30a44a340193b1ac6814fd9b7b4e88e9d4519a3e4abe1cfd"
+checksum = "8917285742e9f3e1683f0a9c4e6b57960b7314d0b08d30d1ecd426713ee2eee9"
 
 [[package]]
 name = "static_assertions"
@@ -1083,7 +1097,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "steel-core"
 version = "0.6.0"
-source = "git+https://github.com/mattwparas/steel?branch=master#3ec9f5413468971518d6018e0e165d9fe306bb1e"
+source = "git+https://github.com/mattwparas/steel?branch=master#8ca5af8c32278e3101d54ce459fcb3ef34caf493"
 dependencies = [
  "abi_stable",
  "arc-swap",
@@ -1103,6 +1117,7 @@ dependencies = [
  "home",
  "http",
  "httparse",
+ "im",
  "im-lists",
  "im-rc",
  "lasso",
@@ -1130,7 +1145,7 @@ dependencies = [
 [[package]]
 name = "steel-derive"
 version = "0.5.0"
-source = "git+https://github.com/mattwparas/steel?branch=master#3ec9f5413468971518d6018e0e165d9fe306bb1e"
+source = "git+https://github.com/mattwparas/steel?branch=master#8ca5af8c32278e3101d54ce459fcb3ef34caf493"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1140,7 +1155,7 @@ dependencies = [
 [[package]]
 name = "steel-gen"
 version = "0.2.0"
-source = "git+https://github.com/mattwparas/steel?branch=master#3ec9f5413468971518d6018e0e165d9fe306bb1e"
+source = "git+https://github.com/mattwparas/steel?branch=master#8ca5af8c32278e3101d54ce459fcb3ef34caf493"
 dependencies = [
  "codegen",
  "serde",
@@ -1150,7 +1165,7 @@ dependencies = [
 [[package]]
 name = "steel-parser"
 version = "0.6.0"
-source = "git+https://github.com/mattwparas/steel?branch=master#3ec9f5413468971518d6018e0e165d9fe306bb1e"
+source = "git+https://github.com/mattwparas/steel?branch=master#8ca5af8c32278e3101d54ce459fcb3ef34caf493"
 dependencies = [
  "compact_str",
  "fxhash",
