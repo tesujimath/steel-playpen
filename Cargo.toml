@@ -14,4 +14,5 @@ steel-core = { git = "https://github.com/mattwparas/steel", branch = "master", f
   "dylibs",
   "sync",
 ] }
+steel-derive = { git = "https://github.com/mattwparas/steel", branch = "master" }
 sys-info = "0.9.1"
