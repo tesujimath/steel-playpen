@@ -32,3 +32,12 @@
       (cond
         [(= i 1) a1]
         [else (fib (- i 1) (+ a1 a2) a1)]))))
+
+;;; 3.3 Continuations
+
+(let ([x (call/cc (lambda (k) k))])
+  (x (lambda (ignore) "hi")))
+
+(define looper
+  (lambda (n)
+    (display (call/cc (lambda (k) (display n))))))

@@ -1,11 +1,7 @@
 // Using ABI Stable types is very important
 use steel::{
-    declare_module,
     rvals::Custom,
-    steel_vm::{
-        ffi::{FFIModule, RegisterFFIFn},
-        register_fn::RegisterFn,
-    },
+    steel_vm::ffi::{FFIModule, RegisterFFIFn},
 };
 
 struct MemoryInfo {
