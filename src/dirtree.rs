@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 // Using ABI Stable types is very important
 use steel::{
@@ -71,6 +71,12 @@ fn dir_set(path: String) -> HashSet<String> {
     dir_iter(path).collect::<HashSet<String>>()
 }
 
+fn dir_map(path: String) -> HashMap<String, bool> {
+    dir_iter(path)
+        .map(|s| (s, true))
+        .collect::<HashMap<String, bool>>()
+}
+
 fn dir_vec(path: String) -> Vec<String> {
     dir_iter(path).collect::<Vec<String>>()
 }
@@ -90,6 +96,9 @@ pub fn register_fns(module: &mut FFIModule) {
     module.register_fn("dir-tree", dir_tree);
     module.register_fn("DirTree-size", DirTree::size);
 
-    // module.register_fn("dir-set", dir_set);
     module.register_fn("dir-vec", dir_vec);
+
+    // These don't work because of unsatisfied trait bound
+    module.register_fn("dir-set", dir_set);
+    module.register_fn("dir-map", dir_map);
 }
