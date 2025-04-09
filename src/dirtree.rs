@@ -1,10 +1,11 @@
 use std::collections::{HashMap, HashSet};
 
+use abi_stable::std_types::RVec;
 // Using ABI Stable types is very important
 use steel::{
     rvals::IntoSteelVal,
     steel_vm::{
-        ffi::{FFIModule, RegisterFFIFn},
+        ffi::{FFIModule, FFIValue, RegisterFFIFn},
         register_fn::RegisterFn,
     },
     SteelVal,
@@ -67,38 +68,34 @@ fn dir_iter(path: String) -> impl Iterator<Item = String> {
     })
 }
 
-fn dir_set(path: String) -> HashSet<String> {
-    dir_iter(path).collect::<HashSet<String>>()
-}
-
 fn dir_map(path: String) -> HashMap<String, bool> {
     dir_iter(path)
         .map(|s| (s, true))
         .collect::<HashMap<String, bool>>()
 }
 
-fn dir_vec(path: String) -> Vec<String> {
+fn dir_list(path: String) -> Vec<String> {
+    // Rust's Vec is returned as Steel List, probably because Steel Vector is immutable
     dir_iter(path).collect::<Vec<String>>()
 }
 
-fn consume_dir<D>(d: D)
-where
-    D: IntoSteelVal,
-{
-}
-
-fn consume_dir_from_path(path: String) {
-    let d = dir_set(path);
-    consume_dir(d);
+// returned as a Steel List, alas
+fn dir_vec(path: String) -> FFIValue {
+    // Rust's Vec is returned as Steel List, probably because Steel Vector is immutable
+    // but this is also mapped to a Steel List, because of FFIValue::as_steelval,
+    // which means we can't create Steel Vectors from Rust AFAICT
+    let v = dir_iter(path)
+        .map(|s| FFIValue::StringV(s.into()))
+        .collect::<Vec<FFIValue>>();
+    let rvec = RVec::from(v);
+    FFIValue::Vector(rvec)
 }
 
 pub fn register_fns(module: &mut FFIModule) {
     module.register_fn("dir-tree", dir_tree);
     module.register_fn("DirTree-size", DirTree::size);
 
+    module.register_fn("dir-list", dir_list);
     module.register_fn("dir-vec", dir_vec);
-
-    // These don't work because of unsatisfied trait bound
-    module.register_fn("dir-set", dir_set);
     module.register_fn("dir-map", dir_map);
 }
