@@ -2,30 +2,26 @@ use std::collections::{HashMap, HashSet};
 
 use abi_stable::std_types::RVec;
 // Using ABI Stable types is very important
-use steel::{
-    rvals::IntoSteelVal,
-    steel_vm::{
-        ffi::{FFIModule, FFIValue, RegisterFFIFn},
-        register_fn::RegisterFn,
-    },
-    SteelVal,
+use steel::steel_vm::{
+    ffi::{as_underlying_ffi_type, CustomRef, FFIArg, FFIModule, FFIValue, RegisterFFIFn},
+    register_fn::RegisterFn,
 };
 use steel_derive::Steel;
 
 #[derive(Clone, Steel, Default, Debug)]
 struct DirTree(std::collections::HashMap<String, Box<Node>>);
 
+impl DirTree {
+    fn size(&self) -> usize {
+        self.0.len()
+    }
+}
+
 #[derive(Clone, Steel, Debug)]
 enum Node {
     File,
     Symlink(String),
     Dir(DirTree),
-}
-
-impl DirTree {
-    fn size(&self) -> usize {
-        self.0.len()
-    }
 }
 
 fn dir_tree(path: String) -> DirTree {
@@ -94,6 +90,15 @@ fn dir_vec(path: String) -> FFIValue {
 pub fn register_fns(module: &mut FFIModule) {
     module.register_fn("dir-tree", dir_tree);
     module.register_fn("DirTree-size", DirTree::size);
+
+    // see https://github.com/mattwparas/steel/issues/358#issuecomment-2791237612
+    module.register_fn("DirTree?", |value: FFIArg| {
+        if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
+            as_underlying_ffi_type::<DirTree>(custom.get_mut()).is_some()
+        } else {
+            false
+        }
+    });
 
     module.register_fn("dir-list", dir_list);
     module.register_fn("dir-vec", dir_vec);

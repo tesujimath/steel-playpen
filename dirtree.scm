@@ -3,4 +3,5 @@
     dir-map
     dir-list
     dir-vec
+    DirTree?
     DirTree-size))
