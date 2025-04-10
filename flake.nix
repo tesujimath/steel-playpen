@@ -5,15 +5,23 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     rust-overlay.url = "github:oxalica/rust-overlay";
     flake-utils.url = "github:numtide/flake-utils";
+    steel = {
+      # TODO: switch back to mainline when this is merged
+      url = "github:tesujimath/steel/improve-package-rebased";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, rust-overlay, flake-utils }:
-    flake-utils.lib.eachDefaultSystem
+  outputs = inputs:
+    inputs.flake-utils.lib.eachDefaultSystem
       (system:
         let
-          overlays = [ (import rust-overlay) ];
-          pkgs = import nixpkgs {
+          overlays = [ (import inputs.rust-overlay) ];
+          pkgs = import inputs.nixpkgs {
             inherit system overlays;
+          };
+          flakePkgs = {
+            steel = inputs.steel.packages.${system}.default;
           };
           # cargo-nightly based on https://github.com/oxalica/rust-overlay/issues/82
           nightly = pkgs.rust-bin.selectLatestNightlyWith (t: t.default);
@@ -35,6 +43,8 @@
               gcc
               gdb
               rust-bin.stable.latest.default
+
+              flakePkgs.steel
             ];
 
             shellHook = ''
