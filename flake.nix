@@ -6,8 +6,7 @@
     rust-overlay.url = "github:oxalica/rust-overlay";
     flake-utils.url = "github:numtide/flake-utils";
     steel = {
-      # TODO: switch back to mainline when this is merged
-      url = "github:tesujimath/steel/improve-package-rebased";
+      url = "github:mattwparas/steel/master";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
