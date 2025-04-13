@@ -1,4 +1,7 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    fs::FileType,
+};
 
 use abi_stable::std_types::RVec;
 // Using ABI Stable types is very important
@@ -22,6 +25,13 @@ enum Node {
     File,
     Symlink(String),
     Dir(DirTree),
+}
+
+#[derive(Clone, Steel, Debug)]
+enum Entry {
+    File,
+    Symlink(String),
+    Dir,
 }
 
 fn dir_tree(path: String) -> DirTree {
@@ -51,28 +61,47 @@ fn dir_tree(path: String) -> DirTree {
     )
 }
 
-fn dir_iter(path: String) -> impl Iterator<Item = String> {
+fn dir_iter(path: String) -> impl Iterator<Item = (String, FileType)> {
     let read_dir =
         std::fs::read_dir(&path).unwrap_or_else(|e| panic!("failed to read {}: {}", &path, e));
 
     read_dir.map(|entry| {
-        entry
-            .unwrap_or_else(|e| panic!("failed on entry : {}", e))
-            .file_name()
-            .to_string_lossy()
-            .into_owned()
+        let entry = entry.unwrap_or_else(|e| panic!("failed on entry : {}", e));
+        (
+            entry.file_name().to_string_lossy().into_owned(),
+            entry.file_type().unwrap(),
+        )
     })
 }
 
 fn dir_map(path: String) -> HashMap<String, bool> {
     dir_iter(path)
-        .map(|s| (s, true))
+        .map(|(file_name, _file_type)| (file_name, true))
         .collect::<HashMap<String, bool>>()
+}
+
+fn dir_entries(path: String) -> HashMap<String, Entry> {
+    dir_iter(path)
+        .map(|(file_name, file_type)| {
+            (
+                file_name,
+                if file_type.is_file() {
+                    Entry::File
+                } else if file_type.is_symlink() {
+                    Entry::Symlink("unknown".to_string())
+                } else {
+                    Entry::Dir
+                },
+            )
+        })
+        .collect::<HashMap<String, Entry>>()
 }
 
 fn dir_list(path: String) -> Vec<String> {
     // Rust's Vec is returned as Steel List, probably because Steel Vector is immutable
-    dir_iter(path).collect::<Vec<String>>()
+    dir_iter(path)
+        .map(|(file_name, _file_type)| file_name)
+        .collect::<Vec<String>>()
 }
 
 // returned as a Steel List, alas
@@ -81,7 +110,7 @@ fn dir_vec(path: String) -> FFIValue {
     // but this is also mapped to a Steel List, because of FFIValue::as_steelval,
     // which means we can't create Steel Vectors from Rust AFAICT
     let v = dir_iter(path)
-        .map(|s| FFIValue::StringV(s.into()))
+        .map(|(file_name, _file_type)| FFIValue::StringV(file_name.into()))
         .collect::<Vec<FFIValue>>();
     let rvec = RVec::from(v);
     FFIValue::Vector(rvec)
@@ -100,7 +129,24 @@ pub fn register_fns(module: &mut FFIModule) {
         }
     });
 
+    module.register_fn("Entry?", |value: FFIArg| {
+        if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
+            as_underlying_ffi_type::<Entry>(custom.get_mut()).is_some()
+        } else {
+            false
+        }
+    });
+    module.register_fn("Entry-File?", |value: FFIArg| {
+        if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
+            as_underlying_ffi_type::<Entry>(custom.get_mut())
+                .is_some_and(|entry| matches!(entry, Entry::File))
+        } else {
+            false
+        }
+    });
+
     module.register_fn("dir-list", dir_list);
     module.register_fn("dir-vec", dir_vec);
     module.register_fn("dir-map", dir_map);
+    module.register_fn("dir-entries", dir_entries);
 }

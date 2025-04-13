@@ -3,5 +3,8 @@
     dir-map
     dir-list
     dir-vec
+    dir-entries
     DirTree?
-    DirTree-size))
+    DirTree-size
+    Entry?
+    Entry-File?))
