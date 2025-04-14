@@ -12,5 +12,7 @@ fn create_module() -> FFIModule {
     module
 }
 
+#[macro_use]
+mod register_macros;
 mod dirtree;
 mod meminfo;

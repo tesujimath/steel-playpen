@@ -1,7 +1,5 @@
-use std::{
-    collections::{HashMap, HashSet},
-    fs::{read_link, FileType},
-};
+#![allow(dead_code)]
+use std::{collections::HashMap, fs::read_link};
 
 use abi_stable::std_types::RVec;
 // Using ABI Stable types is very important
@@ -122,61 +120,6 @@ fn dir_vec(path: String) -> FFIValue {
         .collect::<Vec<FFIValue>>();
     let rvec = RVec::from(v);
     FFIValue::Vector(rvec)
-}
-
-macro_rules! register_enum {
-    ($module: expr, $enum:ident, $( $variant:ident ),* ) => {
-        $module.register_fn(concat!(stringify!($enum), "?"), |value: FFIArg| {
-            if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
-                as_underlying_ffi_type::<$enum>(custom.get_mut()).is_some()
-            } else {
-                false
-            }
-        });
-        $(
-        $module.register_fn(
-            concat!(stringify!($enum), "-", stringify!($variant), "?"),
-            |value: FFIArg| {
-                if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
-                    as_underlying_ffi_type::<$enum>(custom.get_mut())
-                        .is_some_and(|entry| matches!(entry, $enum::$variant))
-                } else {
-                    false
-                }
-            },
-        );
-        )*
-    };
-}
-
-macro_rules! register_enum_data {
-    ($module: expr, $enum:ident, $( $variant:ident ),* ) => {
-        $(
-        $module.register_fn(
-            concat!(stringify!($enum), "-", stringify!($variant), "?"),
-            |value: FFIArg| {
-                if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
-                    as_underlying_ffi_type::<$enum>(custom.get_mut())
-                        .is_some_and(|entry| matches!(entry, $enum::$variant(_)))
-                } else {
-                    false
-                }
-            },
-        );
-
-        $module.register_fn(
-            concat!(stringify!($enum), "-", stringify!($variant)),
-            |value: FFIArg| {
-                if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
-                    as_underlying_ffi_type::<$enum>(custom.get_mut())
-                        .and_then(|entry| if let $enum::$variant(value) = entry { Some(value.clone().into())} else {None})
-                        .unwrap_or(FFIValue::Void)
-                } else {
-                    FFIValue::Void               }
-            },
-        );
-        )*
-    };
 }
 
 pub fn register_fns(module: &mut FFIModule) {
