@@ -7,4 +7,5 @@
     DirTree?
     DirTree-size
     Entry?
-    Entry-File?))
+    Entry-File?
+    Entry-Dir?))

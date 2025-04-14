@@ -117,7 +117,7 @@ fn dir_vec(path: String) -> FFIValue {
 }
 
 macro_rules! register_enum {
-    ($module: expr, $enum:ident, $variant:ident) => {
+    ($module: expr, $enum:ident, $( $variant:ident ),* ) => {
         $module.register_fn(concat!(stringify!($enum), "?"), |value: FFIArg| {
             if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
                 as_underlying_ffi_type::<$enum>(custom.get_mut()).is_some()
@@ -125,6 +125,7 @@ macro_rules! register_enum {
                 false
             }
         });
+        $(
         $module.register_fn(
             concat!(stringify!($enum), "-", stringify!($variant), "?"),
             |value: FFIArg| {
@@ -136,6 +137,7 @@ macro_rules! register_enum {
                 }
             },
         );
+        )*
     };
 }
 
@@ -169,7 +171,7 @@ pub fn register_fns(module: &mut FFIModule) {
     // });
 
     // trace_macros!(true);
-    register_enum!(module, Entry, File);
+    register_enum!(module, Entry, File, Dir);
     // trace_macros!(false);
 
     module.register_fn("dir-list", dir_list);
