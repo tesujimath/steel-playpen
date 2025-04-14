@@ -8,4 +8,5 @@
     DirTree-size
     Entry?
     Entry-File?
+    Entry-Symlink?
     Entry-Dir?))

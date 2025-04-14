@@ -141,6 +141,24 @@ macro_rules! register_enum {
     };
 }
 
+macro_rules! register_enum_data {
+    ($module: expr, $enum:ident, $( $variant:ident ),* ) => {
+        $(
+        $module.register_fn(
+            concat!(stringify!($enum), "-", stringify!($variant), "?"),
+            |value: FFIArg| {
+                if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
+                    as_underlying_ffi_type::<$enum>(custom.get_mut())
+                        .is_some_and(|entry| matches!(entry, $enum::$variant(_)))
+                } else {
+                    false
+                }
+            },
+        );
+        )*
+    };
+}
+
 pub fn register_fns(module: &mut FFIModule) {
     module.register_fn("dir-tree", dir_tree);
     module.register_fn("DirTree-size", DirTree::size);
@@ -172,6 +190,7 @@ pub fn register_fns(module: &mut FFIModule) {
 
     // trace_macros!(true);
     register_enum!(module, Entry, File, Dir);
+    register_enum_data!(module, Entry, Symlink);
     // trace_macros!(false);
 
     module.register_fn("dir-list", dir_list);
