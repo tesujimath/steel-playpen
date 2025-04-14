@@ -116,6 +116,29 @@ fn dir_vec(path: String) -> FFIValue {
     FFIValue::Vector(rvec)
 }
 
+macro_rules! register_enum {
+    ($module: expr, $enum:ident, $variant:ident) => {
+        $module.register_fn(concat!(stringify!($enum), "?"), |value: FFIArg| {
+            if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
+                as_underlying_ffi_type::<$enum>(custom.get_mut()).is_some()
+            } else {
+                false
+            }
+        });
+        $module.register_fn(
+            concat!(stringify!($enum), "-", stringify!($variant), "?"),
+            |value: FFIArg| {
+                if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
+                    as_underlying_ffi_type::<$enum>(custom.get_mut())
+                        .is_some_and(|entry| matches!(entry, $enum::$variant))
+                } else {
+                    false
+                }
+            },
+        );
+    };
+}
+
 pub fn register_fns(module: &mut FFIModule) {
     module.register_fn("dir-tree", dir_tree);
     module.register_fn("DirTree-size", DirTree::size);
@@ -129,21 +152,25 @@ pub fn register_fns(module: &mut FFIModule) {
         }
     });
 
-    module.register_fn("Entry?", |value: FFIArg| {
-        if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
-            as_underlying_ffi_type::<Entry>(custom.get_mut()).is_some()
-        } else {
-            false
-        }
-    });
-    module.register_fn("Entry-File?", |value: FFIArg| {
-        if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
-            as_underlying_ffi_type::<Entry>(custom.get_mut())
-                .is_some_and(|entry| matches!(entry, Entry::File))
-        } else {
-            false
-        }
-    });
+    // module.register_fn("Entry?", |value: FFIArg| {
+    //     if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
+    //         as_underlying_ffi_type::<Entry>(custom.get_mut()).is_some()
+    //     } else {
+    //         false
+    //     }
+    // });
+    // module.register_fn("Entry-File?", |value: FFIArg| {
+    //     if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
+    //         as_underlying_ffi_type::<Entry>(custom.get_mut())
+    //             .is_some_and(|entry| matches!(entry, Entry::File))
+    //     } else {
+    //         false
+    //     }
+    // });
+
+    // trace_macros!(true);
+    register_enum!(module, Entry, File);
+    // trace_macros!(false);
 
     module.register_fn("dir-list", dir_list);
     module.register_fn("dir-vec", dir_vec);
