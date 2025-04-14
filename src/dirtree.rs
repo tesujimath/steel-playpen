@@ -1,6 +1,6 @@
 use std::{
     collections::{HashMap, HashSet},
-    fs::FileType,
+    fs::{read_link, FileType},
 };
 
 use abi_stable::std_types::RVec;
@@ -61,47 +61,55 @@ fn dir_tree(path: String) -> DirTree {
     )
 }
 
-fn dir_iter(path: String) -> impl Iterator<Item = (String, FileType)> {
+fn dir_file_name_iter(path: String) -> impl Iterator<Item = String> {
     let read_dir =
         std::fs::read_dir(&path).unwrap_or_else(|e| panic!("failed to read {}: {}", &path, e));
 
     read_dir.map(|entry| {
         let entry = entry.unwrap_or_else(|e| panic!("failed on entry : {}", e));
-        (
-            entry.file_name().to_string_lossy().into_owned(),
-            entry.file_type().unwrap(),
-        )
+        entry.file_name().to_string_lossy().into_owned()
     })
 }
 
 fn dir_map(path: String) -> HashMap<String, bool> {
-    dir_iter(path)
-        .map(|(file_name, _file_type)| (file_name, true))
+    dir_file_name_iter(path)
+        .map(|file_name| (file_name, true))
         .collect::<HashMap<String, bool>>()
 }
 
 fn dir_entries(path: String) -> HashMap<String, Entry> {
-    dir_iter(path)
-        .map(|(file_name, file_type)| {
-            (
-                file_name,
-                if file_type.is_file() {
-                    Entry::File
-                } else if file_type.is_symlink() {
-                    Entry::Symlink("unknown".to_string())
-                } else {
-                    Entry::Dir
-                },
-            )
+    let read_dir =
+        std::fs::read_dir(&path).unwrap_or_else(|e| panic!("failed to read {}: {}", &path, e));
+
+    read_dir
+        .filter_map(|entry| {
+            let entry = entry.unwrap_or_else(|e| panic!("failed on entry : {}", e));
+            let file_name = entry.file_name().to_string_lossy().into_owned();
+            let file_type = entry.file_type().unwrap();
+
+            let entry = if file_type.is_file() {
+                Some(Entry::File)
+            } else if file_type.is_symlink() {
+                let target = read_link(entry.path())
+                    .unwrap()
+                    .to_string_lossy()
+                    .into_owned();
+                Some(Entry::Symlink(target))
+            } else if file_type.is_dir() {
+                Some(Entry::Dir)
+            } else {
+                // ignore unknown file type, probably a pipe
+                None
+            };
+
+            entry.map(|entry| (file_name, entry))
         })
         .collect::<HashMap<String, Entry>>()
 }
 
 fn dir_list(path: String) -> Vec<String> {
     // Rust's Vec is returned as Steel List, probably because Steel Vector is immutable
-    dir_iter(path)
-        .map(|(file_name, _file_type)| file_name)
-        .collect::<Vec<String>>()
+    dir_file_name_iter(path).collect::<Vec<String>>()
 }
 
 // returned as a Steel List, alas
@@ -109,8 +117,8 @@ fn dir_vec(path: String) -> FFIValue {
     // Rust's Vec is returned as Steel List, probably because Steel Vector is immutable
     // but this is also mapped to a Steel List, because of FFIValue::as_steelval,
     // which means we can't create Steel Vectors from Rust AFAICT
-    let v = dir_iter(path)
-        .map(|(file_name, _file_type)| FFIValue::StringV(file_name.into()))
+    let v = dir_file_name_iter(path)
+        .map(|file_name| FFIValue::StringV(file_name.into()))
         .collect::<Vec<FFIValue>>();
     let rvec = RVec::from(v);
     FFIValue::Vector(rvec)
@@ -153,6 +161,18 @@ macro_rules! register_enum_data {
                 } else {
                     false
                 }
+            },
+        );
+
+        $module.register_fn(
+            concat!(stringify!($enum), "-", stringify!($variant)),
+            |value: FFIArg| {
+                if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
+                    as_underlying_ffi_type::<$enum>(custom.get_mut())
+                        .and_then(|entry| if let $enum::$variant(value) = entry { Some(value.clone().into())} else {None})
+                        .unwrap_or(FFIValue::Void)
+                } else {
+                    FFIValue::Void               }
             },
         );
         )*

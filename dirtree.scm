@@ -9,4 +9,5 @@
     Entry?
     Entry-File?
     Entry-Symlink?
+    Entry-Symlink
     Entry-Dir?))
