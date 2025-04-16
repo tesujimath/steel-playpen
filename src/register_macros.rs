@@ -1,24 +1,7 @@
-macro_rules! register_type {
-    ($module: expr, $type:ident ) => {
-        $module.register_fn(concat!(stringify!($type), "?"), |value: FFIArg| {
-            if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
-                as_underlying_ffi_type::<$type>(custom.get_mut()).is_some()
-            } else {
-                false
-            }
-        });
-    };
-}
-
 macro_rules! register_enum {
     ($module: expr, $enum:ident, $( $variant:ident ),* ) => {
-        $module.register_fn(concat!(stringify!($enum), "?"), |value: FFIArg| {
-            if let FFIArg::CustomRef(CustomRef { mut custom, .. }) = value {
-                as_underlying_ffi_type::<$enum>(custom.get_mut()).is_some()
-            } else {
-                false
-            }
-        });
+        $module.register_type::<$enum>(concat!(stringify!($enum), "?"));
+
         $(
         $module.register_fn(
             concat!(stringify!($enum), "-", stringify!($variant), "?"),

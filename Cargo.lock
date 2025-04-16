@@ -188,9 +188,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.2.18"
+version = "1.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "525046617d8376e3db1deffb079e91cef90a89fc3ca5c185bbf8c9ecdd15cd5c"
+checksum = "8e3a13707ac958681c13b39b458c073d0d9bc8a22cb1b2f4c8e55eb72c13f362"
 dependencies = [
  "shlex",
 ]
@@ -643,9 +643,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.171"
+version = "0.2.172"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c19937216e9d3aa9956d9bb8dfc0b0c8beb6058fc4f7a4dc4d850edf86a237d6"
+checksum = "d750af042f7ef4f724306de029d18836c26c1765a54a6a3f094cbd23a7267ffa"
 
 [[package]]
 name = "libloading"
@@ -681,9 +681,9 @@ checksum = "d26c52dbd32dccf2d10cac7725f8eae5296885fb5703b261f7d0a0739ec807ab"
 
 [[package]]
 name = "linux-raw-sys"
-version = "0.9.3"
+version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe7db12097d22ec582439daf8618b8fdd1a7bef6270e9af3b1ebcd30893cf413"
+checksum = "cd945864f07fe9f5371a27ad7b52a172b4b499999f1d97574c9fa68373937e12"
 
 [[package]]
 name = "lock_api"
@@ -873,9 +873,9 @@ dependencies = [
 
 [[package]]
 name = "proc-macro2"
-version = "1.0.94"
+version = "1.0.95"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a31971752e70b8b2686d7e46ec17fb38dad4051d94024c88df49b667caea9c84"
+checksum = "02b3e5e68a3a1a02aad3ec490a98007cbc13c37cbe84a3cd7b8e406d76e7f778"
 dependencies = [
  "unicode-ident",
 ]
@@ -1016,7 +1016,7 @@ dependencies = [
  "bitflags",
  "errno",
  "libc",
- "linux-raw-sys 0.9.3",
+ "linux-raw-sys 0.9.4",
  "windows-sys 0.59.0",
 ]
 
@@ -1116,7 +1116,7 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 [[package]]
 name = "steel-core"
 version = "0.6.0"
-source = "git+https://github.com/mattwparas/steel?branch=master#764cc318dd427f7502f0c7f2a3bb9f1ba4705cd7"
+source = "git+https://github.com/mattwparas/steel?branch=master#a5c4fb1175ce33a5f6de9fd993d82ddcb690c374"
 dependencies = [
  "abi_stable",
  "arc-swap",
@@ -1164,7 +1164,7 @@ dependencies = [
 [[package]]
 name = "steel-derive"
 version = "0.5.0"
-source = "git+https://github.com/mattwparas/steel?branch=master#764cc318dd427f7502f0c7f2a3bb9f1ba4705cd7"
+source = "git+https://github.com/mattwparas/steel?branch=master#a5c4fb1175ce33a5f6de9fd993d82ddcb690c374"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1174,7 +1174,7 @@ dependencies = [
 [[package]]
 name = "steel-gen"
 version = "0.2.0"
-source = "git+https://github.com/mattwparas/steel?branch=master#764cc318dd427f7502f0c7f2a3bb9f1ba4705cd7"
+source = "git+https://github.com/mattwparas/steel?branch=master#a5c4fb1175ce33a5f6de9fd993d82ddcb690c374"
 dependencies = [
  "codegen",
  "serde",
@@ -1184,7 +1184,7 @@ dependencies = [
 [[package]]
 name = "steel-parser"
 version = "0.6.0"
-source = "git+https://github.com/mattwparas/steel?branch=master#764cc318dd427f7502f0c7f2a3bb9f1ba4705cd7"
+source = "git+https://github.com/mattwparas/steel?branch=master#a5c4fb1175ce33a5f6de9fd993d82ddcb690c374"
 dependencies = [
  "compact_str",
  "fxhash",
